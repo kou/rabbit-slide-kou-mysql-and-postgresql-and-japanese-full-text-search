@@ -1,0 +1,18 @@
+= MroongaとPGroonga
+
+: subtitle
+   Groongaを使って\nMySQLとPostgreSQLで日本語全文検索
+: author
+   須藤功平
+: institution
+   クリアコード
+: content-source
+   MySQLとPostgreSQLと日本語全文検索
+: date
+   2016-02-09
+: allotted-time
+   20m
+: theme
+   groonga
+
+= ...
