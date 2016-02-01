@@ -1,4 +1,4 @@
-= MroongaとPGroonga
+= Mroonga\n(('note:と'))\nPGroonga
 
 : subtitle
    Groongaを使って\nMySQLとPostgreSQLで日本語全文検索
@@ -15,4 +15,79 @@
 : theme
    groonga
 
-= ...
+= Mroonga・PGroonga
+
+  * Mroonga（むるんが）
+    * (('wait'))MySQLに\n
+      高速日本語全文検索機能を追加する\n
+      プロダクト
+  * PGroonga（ぴーじーるんが）
+    * (('wait'))PostgreSQLに\n
+      高速日本語全文検索機能を追加する\n
+      プロダクト
+
+= 実現方法
+
+  * Mroonga（むるんが）
+    * (('wait'))MySQLに\n
+      Groongaを組み込み
+  * PGroonga（ぴーじーるんが）
+    * (('wait'))PostgreSQLに\n
+      Groongaを組み込み
+
+= Groonga
+
+  * (('wait'))国産の高速全文検索エンジン
+    * 日本語バッチリ
+  * (('wait'))ライブラリーとして使える
+    * 組み込みやすい
+  * (('wait'))マルチスレッド対応\n
+    (('note:（MySQL組み込み時にうれしい）'))
+  * (('wait'))マルチプロセス対応\n
+    (('note:（PostgreSQL組み込み時にうれしい）'))
+
+= 実装
+
+  * Mroonga
+    * (('wait'))MySQLのストレージエンジン
+  * PGroonga
+    * (('wait'))PostgreSQLの\n
+      インデックスアクセスメソッド
+
+= ストレージエンジン
+
+  # image
+  # src = images/mysql-storage-engine.svg
+  # relative_height = 100
+
+= インデックス\nアクセスメソッド
+
+  # image
+  # src = images/postgresql-index-access-method.svg
+  # relative_height = 100
+
+= 違い：担当範囲
+
+  * ストレージエンジン
+    * (('wait'))データ関連すべて\n
+      (('note:読み書き・インデックス・検索・トランザクション…'))
+  * インデックスAM
+    * (('wait'))インデックス関連だけ\n
+      (('note:インデックス管理と検索だけ'))
+
+= 処理内容
+
+  * Mroonga
+    * (('wait'))((*Groongaでデータ管理*))
+    * (('wait'))Groongaでインデックス作成
+    * (('wait'))Groongaで検索
+  * PGroonga
+    * (('wait'))Groongaでインデックス作成
+    * (('wait'))Groongaで検索
+
+= 違い：トランザクション
+
+  * ストレージエンジン
+    * (('wait'))責任あり
+  * インデックスAM
+    * (('wait'))責任なし
