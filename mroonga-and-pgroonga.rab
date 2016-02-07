@@ -26,6 +26,10 @@
       高速日本語全文検索機能を追加する\n
       プロダクト
 
+= 高速？
+
+TODO: 速さ
+
 = 実現方法
 
   * Mroonga（むるんが）
@@ -46,48 +50,225 @@
   * (('wait'))マルチプロセス対応\n
     (('note:（PostgreSQL組み込み時にうれしい）'))
 
-= 実装
+= 組み込み方針
 
-  * Mroonga
-    * (('wait'))MySQLのストレージエンジン
-  * PGroonga
-    * (('wait'))PostgreSQLの\n
-      インデックスアクセスメソッド
+  * Groongaをできるだけ活かす
+  * 使い勝手はMySQL・PostgreSQLに寄せる
 
-= ストレージエンジン
+(('wait'))
+(('tag:center'))
+↓\n
+SQLで使えるGroonga
 
-  # image
-  # src = images/mysql-storage-engine.svg
-  # relative_height = 100
-
-= インデックス\nアクセスメソッド
+= ポジション
 
   # image
-  # src = images/postgresql-index-access-method.svg
+  # src = images/position.svg
   # relative_height = 100
 
-= 違い：担当範囲
+= SQLで使えるGroonga
 
-  * ストレージエンジン
-    * (('wait'))データ関連すべて\n
-      (('note:読み書き・インデックス・検索・トランザクション…'))
-  * インデックスAM
-    * (('wait'))インデックス関連だけ\n
-      (('note:インデックス管理と検索だけ'))
+  * Groongaのフル機能は諦める
+    * 速度など譲れない部分はがんばる
+  * その分、使いやすさを重視
+    * (('wait'))使いやすさ1＝\n
+      MySQL・PostgreSQLとなじんでいる
+    * (('wait'))使いやすさ2＝\n
+      MySQL・PostgreSQLの不便を解消
 
-= 処理内容
+= なじみ度：Mroonga
 
+(('tag:center'))
+インデックス作成：MySQLと同じ
+
+  # coderay sql
+  CREATE TABLE ... (
+    ...,
+    FULLTEXT INDEX (column)
+  );
+
+= なじみ度：Mroonga
+
+(('tag:center'))
+全文検索：MySQLと同じ
+
+  # coderay sql
+  SELECT * FROM ...
+    WHERE
+      MATCH(column)
+      AGAINST('キーワード'
+              IN BOOLEAN MODE);
+
+= 不便解消：Mroonga
+
+(('tag:center'))
+デフォルトOR→AND
+
+  # coderay sql
+  -- ↓AまたはBが含まれていればマッチ
+  AGAINST('A B' IN BOOLEAN MODE);
+  AGAINST('+A +B' IN BOOLEAN MODE);
+  -- ↑↓AとBが含まれていればマッチ
+  -- ↓Mroongaの拡張
+  AGAINST('*D+ A B' IN BOOLEAN MODE);
+
+= 不便解消：Mroonga
+
+(('tag:center'))
+重み指定
+
+  # coderay sql
+  -- titleかcontentにAがあればマッチ
+  -- （便利。PostgreSQLではできない。）
+  MATCH(title, content)
+  AGAINST('A' IN BOOLEAN MODE)
+  -- でもtitleの方を重要視したい！
+  -- ↓Mroongaの拡張
+  AGAINST('*W1:10,2:1 A' IN BOOLEAN MODE)
+
+= 不便解消：Mroonga
+
+(('tag:center'))
+全文検索+ORDER LIMIT高速化
+
+  # coderay sql
+  SELECT * FROM tweets
+    WHERE
+      MATCH(content)
+      AGAINST('...' IN BOOLEAN MODE)
+    ORDER BY timestamp DESC
+    LIMIT 10;
+
+= ORDER LIMIT高速化
+
+  * なぜ速いか
+    * (('wait'))Groongaでソートし、LIMIT件だけMySQLに返しているから
+    * (('wait'))MySQLよりGroongaでやった方が速い\n
+      (('note:（ヒント：カラムストア）'))
+
+= さらにORDER LIMIT高速化
+
+  # coderay sql
+  SELECT * FROM tweets
+    WHERE
+      MATCH(content)
+      AGAINST('...' IN BOOLEAN MODE) AND
+      timestamp > '2016-02-01'
+      -- ↑今月の分だけ対象にしたい
+    ORDER BY timestamp DESC
+    LIMIT 10;
+
+= さらにORDER LIMIT高速化
+
+  * なぜ速いか
+    * (('wait'))Groongaで((*絞り込んで*))ソートし、\n
+      LIMIT件だけMySQLに返しているから
+    * (('wait'))MySQLよりGroongaでやった方が速い\n
+      (('note:（ヒント：カラムストア）'))
+  * 場合によっては10倍以上高速化
+    * (('note:http://tech.gmo-media.jp/post/69542751128/mroonga-311-new-optimization'))
+
+= PGroonga
+
+  * Groongaのフル機能は諦める
+    * 速度など譲れない部分はがんばる
+  * その分、使いやすさを重視
+    * 使いやすさ1＝\n
+      MySQL・((*PostgreSQL*))となじんでいる
+    * 使いやすさ2＝\n
+      MySQL・((*PostgreSQL*))の不便を解消
+
+= なじみ度：PGroonga
+
+(('tag:center'))
+インデックス作成：\n
+PostgreSQLと同じ
+
+  # coderay sql
+  CREATE INDEX name ON texts
+    USING pgroonga (content);
+
+= なじみ度：PGroonga
+
+(('tag:center'))
+全文検索：\n
+PostgreSQLのtextsearhとほぼ同じ
+
+  # coderay sql
+  SELECT * FROM ...
+    WHERE
+      column @@ 'キーワード';
+
+= textsearchとの違い
+
+(('tag:center'))
+構文
+
+  # coderay sql
+  -- textsearch
+  -- プログラムのよう
+  '(A & B) | C'
+  -- PGroonga（不便解消）
+  -- Web検索エンジンのよう
+  '(A B) OR C'
+
+= 不便解消：PGroonga
+
+(('tag:center'))
+Windows用バイナリーあり
+
+  * (('wait'))商用ログ管理製品\n
+    「VVAULT AUDIT」が採用\n
+    (('note:http://vvault.jp/product/vvault-audit/'))
+    * アクセスログに対して\n
+      ユーザー名・パスを全文検索
+  * (('wait'))決め手：高速・省スペース
+
+= 不便解消：PGroonga
+
+(('tag:center'))
+JSONデータを全文検索
+
+  # coderay sql
+  CREATE TABLE logs (record jsonb);
+  CREATE INDEX i ON logs
+    USING pgroonga (record);
+  -- ログのどこかに「error」があればマッチ
+  SELECT * FROM logs
+    WHERE record @@ 'string @ "error"';
+
+= JSON全文検索例
+
+(('tag:center'))
+以下は全部マッチ
+
+  # coderay json
+  {"message": "Error!"}
+  {"tags": ["web", "error"]}
+  {"syslog": {"message": "error!"}}
+
+= まとめ1
+
+  * Groonga
+    * (('wait'))国産の高速全文検索エンジン
   * Mroonga
-    * (('wait'))((*Groongaでデータ管理*))
-    * (('wait'))Groongaでインデックス作成
-    * (('wait'))Groongaで検索
+    * (('wait'))MySQLからGroongaを使える！
   * PGroonga
-    * (('wait'))Groongaでインデックス作成
-    * (('wait'))Groongaで検索
+    * (('wait'))PostgreSQLからGroongaを使える！
 
-= 違い：トランザクション
+= まとめ2
 
-  * ストレージエンジン
-    * (('wait'))責任あり
-  * インデックスAM
-    * (('wait'))責任なし
+(('tag:center'))
+実装方針
+
+  * (('wait'))Groongaをできるだけ活かす\n
+    (('note:（例：速度）'))
+  * (('wait'))MySQL/PostgreSQLっぽく使える
+  * (('wait'))MySQL/PostgreSQLをより便利に
+
+= 次回予告
+
+  * (('wait'))トランザクションは？
+  * (('wait'))クラッシュしたら？
+  * (('wait'))レプリケーションは？
+  * (('wait'))もっと速くならないの？
