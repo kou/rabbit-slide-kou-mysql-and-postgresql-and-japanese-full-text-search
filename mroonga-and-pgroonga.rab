@@ -36,7 +36,7 @@
   * (('wait'))(('note:（クラウドサービスに入っていれば…！）'))
     * (('note:HerokuのPostgreSQLにPGroonga入れて！とお願いだ！'))
 
-= お願い
+= 使いたい！？
 
   # blockquote
   HerokuのPostgreSQLで\n
@@ -51,14 +51,25 @@
 
 TODO: 速さ
 
+= 使いたい！？
+
+  # blockquote
+  HerokuのPostgreSQLで\n
+  PGroongaを使えるなら\n
+  Herokuを使いたい！\n#herokujp
+
+(('tag:center'))
+↑と思うならtweet！\n
+（Herokuの人が観測します。）
+
 = 実現方法
 
   * Mroonga（むるんが）
     * (('wait'))MySQLに\n
-      Groongaを組み込み
+      ((*Groonga*))を組み込み
   * PGroonga（ぴーじーるんが）
     * (('wait'))PostgreSQLに\n
-      Groongaを組み込み
+      ((*Groonga*))を組み込み
 
 = Groonga
 
@@ -174,7 +185,7 @@ SQLで使えるGroonga
     WHERE
       MATCH(content)
       AGAINST('...' IN BOOLEAN MODE) AND
-      timestamp > '2016-02-01'
+      timestamp >= '2016-02-01'
       -- ↑今月の分だけ対象にしたい
     ORDER BY timestamp DESC
     LIMIT 10;
@@ -267,6 +278,17 @@ JSONデータを全文検索
   {"message": "Error!"}
   {"tags": ["web", "error"]}
   {"syslog": {"message": "error!"}}
+
+= 使いたい！？
+
+  # blockquote
+  HerokuのPostgreSQLで\n
+  PGroongaを使えるなら\n
+  Herokuを使いたい！\n#herokujp
+
+(('tag:center'))
+↑と思うならtweet！\n
+（Herokuの人が観測します。）
 
 = まとめ1
 
