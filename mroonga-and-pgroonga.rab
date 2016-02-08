@@ -26,6 +26,27 @@
       高速日本語全文検索機能を追加する\n
       プロダクト
 
+= すごい！使いたい！
+
+  * (('wait'))インストールして！
+    * え。。。組み込みじゃないの。。。\n
+      (('note:（MariaDBにはMroongaは組み込まれています！）'))
+  * (('wait'))パッケージあるから簡単だよ！
+    * クラウドサービスで使えない。。。
+  * (('wait'))(('note:（クラウドサービスに入っていれば…！）'))
+    * (('note:HerokuのPostgreSQLにPGroonga入れて！とお願いだ！'))
+
+= お願い
+
+  # blockquote
+  HerokuのPostgreSQLで\n
+  PGroongaを使えるなら\n
+  Herokuを使いたい！\n#herokujp
+
+(('tag:center'))
+↑と思うならtweet！\n
+（Herokuの人が観測します。）
+
 = 高速？
 
 TODO: 速さ
