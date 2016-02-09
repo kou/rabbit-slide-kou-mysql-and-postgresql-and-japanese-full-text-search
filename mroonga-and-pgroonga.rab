@@ -49,7 +49,88 @@
 
 = 高速？
 
-TODO: 速さ
+(('tag:center'))
+ベンチマーク！
+
+  * 対象：Wikipedia日本語版
+  * レコード数：約185万件
+  * データサイズ：約7GB
+  * メモリー4GB・SSD250GB(('note:（ConoHa）'))
+
+(('note:FYI https://github.com/groonga/wikipedia-search/issues/4'))
+
+(('tag:center'))
+(('note:（他人のベンチマークは参考程度）'))\n
+(('note:（検討時はちゃんと実際の環境でベンチマークをとろう！）'))
+
+= 速さ：検索1
+
+(('tag:center'))
+キーワード：テレビアニメ\n
+(('note:（ヒット数：約2万3千件）'))
+
+  # RT
+  delimiter = [|]
+
+  InnoDB ngram | 3m2s
+  InnoDB MeCab | 6m20s
+  Mroonga:((*1*)) | 0.11s
+  pg_bigm | 4s
+  PGroonga:((*2*)) | 0.29s
+
+= 速さ：検索2
+
+(('tag:center'))
+キーワード：データベース\n
+(('note:（ヒット数：約1万7千件）'))
+
+  # RT
+  delimiter = [|]
+
+  InnoDB ngram | 36s
+  InnoDB MeCab:((*1*)) | 0.03s
+  Mroonga:((*2*)) | 0.09s
+  pg_bigm | 2s
+  PGroonga:((*3*)) | 0.17s
+
+= 速さ：検索3
+
+(('tag:center'))
+キーワード：PostgreSQL OR MySQL\n
+(('note:（ヒット数：約400件）'))
+
+  # RT
+  delimiter = [|]
+
+  InnoDB ngram | N/A（エラー）
+  InnoDB MeCab:((*1*)) | 0.005s
+  Mroonga:((*2*)) | 0.028s
+  pg_bigm | 0.185s
+  PGroonga:((*3*)) | 0.063s
+
+= 速さ：検索4
+
+(('tag:center'))
+キーワード：日本\n
+(('note:（ヒット数：約63万件）'))
+
+  # RT
+  delimiter = [|]
+
+  InnoDB ngram | 1.3s
+  InnoDB MeCab | 1.3s
+  Mroonga:((*1*)) | 0.21s
+  pg_bigm:((*2*)) | 0.84s
+  PGroonga | 1s
+
+= 速さ：検索まとめ
+
+  * Mroonga・PGroonga
+    * (('wait'))安定して速い
+  * InnoDB FTS mecab・pg_bigm
+    * (('wait'))ハマれば速い
+  * InnoDB FTS ngram
+    * (('wait'))安定して遅い
 
 = 使いたい！？
 
@@ -62,14 +143,122 @@ TODO: 速さ
 ↑と思うならtweet！\n
 （Herokuの人が観測します。）
 
+= 速さ：データロード
+
+(('tag:center'))
+約185万件・約7GB・SSD
+
+  # RT
+  delimiter = [|]
+
+  InnoDB ngram | 6m51s
+  InnoDB mecab | 6m22s
+  Mroonga:((*3*)) | 5m45s
+  pg_bigm:((*1*)) | 5m14s
+  PGroonga:((*2*)) | 5m22s
+
+(('note:MySQLはbinlog有効、PostgreSQLはWAL有効'))\n
+(('note:InnoDBはどっちも同じ処理'))\n
+(('note:pg_bigmとPGroongaもどっちも同じ処理'))
+
+= 速さ：インデックス作成
+
+(('tag:center'))
+約185万件・約7GB・SSD
+
+  # RT
+  delimiter = [|]
+
+  InnoDB ngram | 3h06m58s
+  InnoDB mecab | 2h41m55s
+  Mroonga:((*1*)) | 22m24s
+  pg_bigm | 3h43m23s
+  PGroonga:((*2*)) | 54m34s
+
+(('note:MySQLはbinlog有効、PostgreSQLはWAL有効'))\n
+(('note:バルクインデックス作成'))\n
+(('note:＝データ投入後インデックス作成'))
+
+= 速さ：ロードまとめ
+
+  * (('wait'))データロードは大差ない
+  * (('wait'))インデックス作成は大差
+    * Mroonga・PGroongaは分単位
+    * InnoDB・pg_bigmは時間単位
+
+= 使いたい！？
+
+  # blockquote
+  HerokuのPostgreSQLで\n
+  PGroongaを使えるなら\n
+  Herokuを使いたい！\n#herokujp
+
+(('tag:center'))
+↑と思うならtweet！\n
+（Herokuの人が観測します。）
+
+= サイズ：データ
+
+  # RT
+  delimiter = [|]
+
+  InnoDB ngram | 10GB
+  InnoDB mecab | 10GB
+  Mroonga | 8.2GB
+  pg_bigm:((*2*)) | 5.1GB
+  PGroonga:((*1*)) | 4.3GB
+
+(('note:InnoDBはどっちも同じ'))\n
+(('note:pg_bigmとPGroongaはどっちも同じはずだけど…'))
+
+= サイズ：インデックス
+
+  # RT
+  delimiter = [|]
+
+  InnoDB ngram | 12GB
+  InnoDB mecab:((*1*)) | 6GB
+  Mroonga:((*1*)) | 6GB
+  pg_bigm:((*3*)) | 7GB
+  PGroonga | 10GB
+
+(('note:InnoDBは一時ファイル（何10GB単位）を作る'))\n
+(('note:PGroongaは元データ（8GB）のコピーもLZ4圧縮して持っている'))
+
+= サイズ：まとめ
+
+  * データサイズ
+    * PostgreSQLは元データより小さめ
+    * InnoDBは元データより大きめ
+  * インデックスサイズ
+    * InnoDB mecabは小さめ\n
+      (('note:（ヒント：形態素解析ベースの方が小さくなる）'))
+    * Mroonga・pg_bigmはN-gramなのにInnoDB mecabと同じくらい
+
+= 高速？
+
+ベンチマークで\n
+確認
+
+= Mroonga・PGroonga
+
+  * Mroonga（むるんが）
+    * (('wait'))MySQLに\n
+      高速日本語全文検索機能を追加する\n
+      プロダクト
+  * PGroonga（ぴーじーるんが）
+    * (('wait'))PostgreSQLに\n
+      高速日本語全文検索機能を追加する\n
+      プロダクト
+
 = 実現方法
 
   * Mroonga（むるんが）
     * (('wait'))MySQLに\n
-      ((*Groonga*))を組み込み
+      ((*Groonga（ぐるんが）*))を組み込み
   * PGroonga（ぴーじーるんが）
     * (('wait'))PostgreSQLに\n
-      ((*Groonga*))を組み込み
+      ((*Groonga（ぐるんが）*))を組み込み
 
 = Groonga
 
@@ -117,7 +306,7 @@ SQLで使えるGroonga
   CREATE TABLE ... (
     ...,
     FULLTEXT INDEX (column)
-  );
+  ) ENGINE=Mroonga;
 
 = なじみ度：Mroonga
 
@@ -292,11 +481,11 @@ JSONデータを全文検索
 
 = まとめ1
 
-  * Groonga
+  * Groonga（ぐるんが）
     * (('wait'))国産の高速全文検索エンジン
-  * Mroonga
+  * Mroonga（むるんが）
     * (('wait'))MySQLからGroongaを使える！
-  * PGroonga
+  * PGroonga（ぴーじーるんが）
     * (('wait'))PostgreSQLからGroongaを使える！
 
 = まとめ2
