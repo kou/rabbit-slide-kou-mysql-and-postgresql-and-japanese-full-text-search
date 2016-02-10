@@ -127,7 +127,7 @@
 
   * Mroonga・PGroonga
     * (('wait'))安定して速い
-  * InnoDB FTS mecab・pg_bigm
+  * InnoDB FTS MeCab・pg_bigm
     * (('wait'))ハマれば速い
   * InnoDB FTS ngram
     * (('wait'))安定して遅い
@@ -152,7 +152,7 @@
   delimiter = [|]
 
   InnoDB ngram | 6m51s
-  InnoDB mecab | 6m22s
+  InnoDB MeCab | 6m22s
   Mroonga:((*3*)) | 5m45s
   pg_bigm:((*1*)) | 5m14s
   PGroonga:((*2*)) | 5m22s
@@ -170,7 +170,7 @@
   delimiter = [|]
 
   InnoDB ngram | 3h06m58s
-  InnoDB mecab | 2h41m55s
+  InnoDB MeCab | 2h41m55s
   Mroonga:((*1*)) | 22m24s
   pg_bigm | 3h43m23s
   PGroonga:((*2*)) | 54m34s
@@ -203,7 +203,7 @@
   delimiter = [|]
 
   InnoDB ngram | 10GB
-  InnoDB mecab | 10GB
+  InnoDB MeCab | 10GB
   Mroonga | 8.2GB
   pg_bigm:((*2*)) | 5.1GB
   PGroonga:((*1*)) | 4.3GB
@@ -217,12 +217,12 @@
   delimiter = [|]
 
   InnoDB ngram | 12GB
-  InnoDB mecab:((*1*)) | 6GB
+  InnoDB MeCab:((*1*)) | 6GB
   Mroonga:((*1*)) | 6GB
   pg_bigm:((*3*)) | 7GB
   PGroonga | 10GB
 
-(('note:InnoDBは一時ファイル（何10GB単位）を作る'))\n
+(('note:InnoDBは一時ファイル（何十GB単位）を作る'))\n
 (('note:PGroongaは元データ（8GB）のコピーもLZ4圧縮して持っている'))
 
 = サイズ：まとめ
@@ -231,9 +231,9 @@
     * PostgreSQLは元データより小さめ
     * InnoDBは元データより大きめ
   * インデックスサイズ
-    * InnoDB mecabは小さめ\n
+    * InnoDB MeCabは小さめ\n
       (('note:（ヒント：形態素解析ベースの方が小さくなる）'))
-    * Mroonga・pg_bigmはN-gramなのにInnoDB mecabと同じくらい
+    * Mroonga・pg_bigmはN-gramなのにInnoDB MeCabと同じくらい
 
 = 高速？
 
