@@ -413,7 +413,7 @@ PostgreSQLと同じ
 
 (('tag:center'))
 全文検索：\n
-PostgreSQLのtextsearhとほぼ同じ
+PostgreSQLのtextsearchとほぼ同じ
 
   # coderay sql
   SELECT * FROM ...
